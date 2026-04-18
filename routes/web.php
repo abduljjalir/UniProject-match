@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AllocationController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\StudentController as AdminStudentController;
 
 /*
@@ -23,11 +25,12 @@ Route::get('/allocate', [AllocationController::class, 'runAllocation']);
 Route::get('/student/{id}/project', [StudentController::class, 'myProject']);
 
 // Admin dashboard
-Route::get('/admin/dashboard', function () {
-    return view('admin.pages.dashboard');
-});
+Route::get('/admin/dashboard', [DashboardController::class, 'index']);
 
 // Admin CRUD
 Route::prefix('admin')->group(function () {
     Route::resource('students', AdminStudentController::class);
+});
+Route::prefix('admin')->group(function () {
+    Route::resource('admins', \App\Http\Controllers\Admin\AdminController::class);
 });

@@ -29,7 +29,7 @@ class Student extends Model
     
      public function allocation()
     {
-        return $this->hasOne(Allocation::class);
+        return $this->hasOne(\App\Models\Allocation::class);
     }
    
 
