@@ -8,6 +8,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.SharedPreferences;
+import com.example.master_topic.api.ApiService;
+import com.example.master_topic.api.RetrofitClient;
+import com.example.master_topic.models.LoginRequest;
+import com.example.master_topic.models.LoginResponse;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity {
 
     Button btnStudent, btnProfessor, btnLogin;
@@ -68,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         String id  = etStudentId.getText().toString().trim();
         String pwd = etPassword.getText().toString().trim();
 
+        // Validation des champs
         if (id.isEmpty()) {
             etStudentId.setError("Champ requis");
             return;
@@ -77,11 +87,63 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        String role = isStudentMode ? "Étudiant" : "Professeur";
-        Toast.makeText(this, "Connecté : " + role + " — " + id, Toast.LENGTH_SHORT).show();
+        // Déterminer le rôle
+        String role = isStudentMode ? "etudiant" : "professeur";
 
-        // TODO: Naviguer vers le prochain écran
-        // Intent intent = new Intent(this, DashboardActivity.class);
-        // startActivity(intent);
+        // Appel API
+        LoginRequest request = new LoginRequest(id, pwd, role);
+        ApiService api = RetrofitClient.getApiService();
+
+        api.login(request).enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+
+                    // Sauvegarder le token
+                    String token = response.body().getToken();
+                    String role  = response.body().getRole();
+                    saveSession(token, role);
+
+                    // Naviguer selon le rôle
+                    naviguerSelonRole(role);
+
+                } else {
+                    Toast.makeText(MainActivity.this,
+                            "Identifiant ou mot de passe incorrect",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                Toast.makeText(MainActivity.this,
+                        "Erreur réseau — vérifiez votre connexion",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    void saveSession(String token, String role) {
+        SharedPreferences prefs = getSharedPreferences("UniProject", MODE_PRIVATE);
+        prefs.edit()
+                .putString("token", token)
+                .putString("role", role)
+                .apply();
+    }
+
+    void naviguerSelonRole(String role) {
+        switch (role) {
+            case "etudiant":
+                // TODO: remplacer par StudentDashboardActivity
+                Toast.makeText(this, "Bienvenue étudiant !", Toast.LENGTH_SHORT).show();
+                break;
+            case "professeur":
+                // TODO: remplacer par ProfessorDashboardActivity
+                Toast.makeText(this, "Bienvenue professeur !", Toast.LENGTH_SHORT).show();
+                break;
+            case "admin":
+                // TODO: remplacer par AdminDashboardActivity
+                Toast.makeText(this, "Bienvenue admin !", Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 }
