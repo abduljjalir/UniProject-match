@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/item_speciality.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- IcÃ´ne -->
+    <TextView
+        android:id="@+id/tvSpecIcon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:background="@drawable/bg_icon_blue"
+        android:text="ðŸ’»" />
+
+    <!-- Nom spÃ©cialitÃ© -->
+    <TextView
+        android:id="@+id/tvSpecName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginLeft="12dp"
+        android:text="Computer Science"
+        android:textColor="#1A2B3C"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <!-- FlÃ¨che -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="â€º"
+        android:textColor="#B0C8E0"
+        android:textSize="20sp" />
+
+</LinearLayout>

@@ -5,6 +5,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -78,10 +79,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String role = isStudentMode ? "Étudiant" : "Professeur";
-        Toast.makeText(this, "Connecté : " + role + " — " + id, Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(MainActivity.this, com.example.master_topic.DashboardActivity.class);
+        intent.putExtra("name", id);
+        intent.putExtra("role", isStudentMode ? "Student" : "Professor");
+        startActivity(intent);
 
-        // TODO: Naviguer vers le prochain écran
-        // Intent intent = new Intent(this, DashboardActivity.class);
-        // startActivity(intent);
+
     }
 }
