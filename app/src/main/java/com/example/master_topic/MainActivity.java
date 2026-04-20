@@ -11,8 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.SharedPreferences;
 import com.example.master_topic.api.ApiService;
 import com.example.master_topic.api.RetrofitClient;
-import com.example.master_topic.models.LoginRequest;
 import com.example.master_topic.models.LoginResponse;
+import com.example.master_topic.models.ProfessorLoginRequest;
+import com.example.master_topic.models.StudentLoginRequest;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -77,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
         String id  = etStudentId.getText().toString().trim();
         String pwd = etPassword.getText().toString().trim();
 
-        // Validation des champs
         if (id.isEmpty()) {
             etStudentId.setError("Champ requis");
             return;
@@ -87,26 +88,28 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // Déterminer le rôle
-        String role = isStudentMode ? "etudiant" : "professeur";
-
-        // Appel API
-        LoginRequest request = new LoginRequest(id, pwd, role);
         ApiService api = RetrofitClient.getApiService();
 
-        api.login(request).enqueue(new Callback<LoginResponse>() {
+
+        // Créer la bonne requête selon le mode
+        Call<LoginResponse> call;
+
+        if (isStudentMode) {
+            StudentLoginRequest request = new StudentLoginRequest(id, pwd);
+            call = api.studentLogin(request);
+        } else {
+            ProfessorLoginRequest request = new ProfessorLoginRequest(id, pwd);
+            call = api.professorLogin(request);
+        }
+
+        call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-
-                    // Sauvegarder le token
                     String token = response.body().getToken();
                     String role  = response.body().getRole();
                     saveSession(token, role);
-
-                    // Naviguer selon le rôle
                     naviguerSelonRole(role);
-
                 } else {
                     Toast.makeText(MainActivity.this,
                             "Identifiant ou mot de passe incorrect",
@@ -117,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 Toast.makeText(MainActivity.this,
-                        "Erreur réseau — vérifiez votre connexion",
+                        "Erreur réseau",
                         Toast.LENGTH_SHORT).show();
             }
         });
