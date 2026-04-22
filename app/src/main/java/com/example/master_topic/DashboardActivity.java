@@ -93,12 +93,22 @@ public class DashboardActivity extends AppCompatActivity {
         };
 
         for (int i = 0; i < projets.length; i++) {
+            final String projet = projets[i];
             View item = LayoutInflater.from(this)
                     .inflate(R.layout.item_project, projectsContainer, false);
             TextView tvNum   = item.findViewById(R.id.tvProjectNum);
             TextView tvTitle = item.findViewById(R.id.tvProjectTitle);
             tvNum.setText(String.valueOf(i + 1));
-            tvTitle.setText(projets[i]);
+            tvTitle.setText(projet);
+
+            // Clic → ouvrir le détail
+            item.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ProjectDetailActivity.class);
+                intent.putExtra("projectTitle", projet);
+                intent.putExtra("projectDesc", "Description fictive du projet " + projet + ". À remplacer par les données de la base.");
+                startActivity(intent);
+            });
+
             projectsContainer.addView(item);
         }
     }
