@@ -10,32 +10,49 @@ use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller
 {
     public function index()
-{
-    return view('admin.admins.index', [
-        'admins' => Admin::all()
-    ]);
-}
+    {
+        $admins = Admin::all();
 
-public function create()
-{
-    return view('admin.admins.create');
-}
+        return view('admin.admins.index', compact('admins'));
+    }
 
-public function store(Request $request)
-{
-    Admin::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-    ]);
+    public function create()
+    {
+        return view('admin.admins.create');
+    }
 
-    return redirect('/admin/admins');
-}
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:admins',
+            'password' => 'required|min:6',
+        ]);
 
-public function destroy($id)
-{
-    Admin::find($id)->delete();
-    return back();
-}
-    //
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('admins', 'public');
+        }
+
+        Admin::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'image' => $imagePath,
+        ]);
+
+        return redirect('/admin/admins')->with('success', 'Admin created successfully');
+    }
+
+    public function destroy($id)
+    {
+        $admin = Admin::find($id);
+
+        if ($admin) {
+            $admin->delete();
+        }
+
+        return back()->with('success', 'Admin deleted successfully');
+    }
 }

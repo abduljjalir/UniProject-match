@@ -13,12 +13,15 @@ class CreateStudentSkillsTable extends Migration
      */
     public function up()
     {
-        Schema::create('student_skills', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->foreignId('skill_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-        });
+     Schema::create('student_skills', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('student_id')->constrained()->onDelete('cascade');
+        $table->foreignId('skill_id')->constrained()->onDelete('cascade');
+
+        $table->integer('level')->default(1); // 
+
+        $table->timestamps();
+     });
     }
 
     /**

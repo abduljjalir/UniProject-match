@@ -25,7 +25,8 @@ class Project extends Model
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'project_skills')
-                    ->withPivot('weight');
+                    ->withPivot('weight')
+                    ->withTimestamps();
     }
 
     public function selections()

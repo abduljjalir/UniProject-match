@@ -9,73 +9,82 @@ use App\Models\Allocation;
 
 class AllocationController extends Controller
 {
-    public function runAllocation()
-    {
-        $students = Student::all();
+  public function runAllocation()
+{
+    $students = Student::with([
+        'skills',
+        'selections.project.skills',
+        'allocation'
+    ])->get();
 
-        foreach ($students as $student) {
+    foreach ($students as $student) {
 
-            $bestProject = null;
-            $bestScore = 0;
+        // 🚫 skip already allocated
+        if ($student->allocation) continue;
 
-            $selections = $student->selections()->orderBy('preference_order')->get();
+        $bestProject = null;
+        $bestScore = 0;
 
-            foreach ($selections as $selection) {
+        $selections = $student->selections->sortBy('preference_order');
 
-                $project = Project::find($selection->project_id);
+        foreach ($selections as $selection) {
 
-                if (!$project) {
-                    continue;
-                }
+            $project = $selection->project;
 
-                $currentCount = Allocation::where('project_id', $project->id)->count();
+            if (!$project) continue;
 
-                if ($currentCount >= $project->max_students) {
-                    continue;
-                }
+            // 🚫 check capacity
+            if ($project->allocations()->count() >= $project->max_students) {
+                continue;
+            }
 
-                // CGPA (60%)
-                $cgpaScore = ($student->cgpa / 20) * 100;
+            // 🎓 CGPA (60%)
+            $cgpaScore = ($student->cgpa / 20) * 100;
 
-                // SKILLS (30%)
-                $skillScore = 0;
-                $maxSkillScore = 0;
+            // 🧠 SKILLS (30%)
+            $skillScore = 0;
+            $maxSkillScore = 0;
 
-                foreach ($project->skills as $skill) {
-                    $maxSkillScore += $skill->pivot->weight;
+            foreach ($project->skills as $skill) {
 
-                    if ($student->skills->contains($skill->id)) {
-                        $skillScore += $skill->pivot->weight;
+                $maxSkillScore += $skill->pivot->weight;
+
+                foreach ($student->skills as $studSkill) {
+
+                    if ($studSkill->id == $skill->id) {
+                        $skillScore += $skill->pivot->weight * ($studSkill->pivot->level ?? 1);
                     }
-                }
-
-                if ($maxSkillScore > 0) {
-                    $skillScore = ($skillScore / $maxSkillScore) * 100;
-                }
-
-                // PREFERENCE (10%)
-                $preferenceScore = (6 - $selection->preference_order) * 20;
-
-                // FINAL SCORE
-                $finalScore =
-                    ($cgpaScore * 0.6) +
-                    ($skillScore * 0.3) +
-                    ($preferenceScore * 0.1);
-
-                if ($finalScore > $bestScore) {
-                    $bestScore = $finalScore;
-                    $bestProject = $project;
                 }
             }
 
-            if ($bestProject) {
-                Allocation::create([
-                    'student_id' => $student->id,
-                    'project_id' => $bestProject->id
-                ]);
+            if ($maxSkillScore > 0) {
+                $skillScore = ($skillScore / $maxSkillScore) * 100;
+            }
+
+            // 📊 PREFERENCE (dynamic)
+            $preferenceScore = max(0, (10 - $selection->preference_order) * 10);
+
+            // 🧮 FINAL SCORE
+            $finalScore =
+                ($cgpaScore * 0.6) +
+                ($skillScore * 0.3) +
+                ($preferenceScore * 0.1);
+
+            if ($finalScore > $bestScore) {
+                $bestScore = $finalScore;
+                $bestProject = $project;
             }
         }
 
-        return "Allocation Completed";
+        // ✅ assign
+        if ($bestProject) {
+            Allocation::create([
+                'student_id' => $student->id,
+                'project_id' => $bestProject->id
+            ]);
+        }
     }
+
+    return back()->with('success', 'Smart allocation completed!');
+}   
 }

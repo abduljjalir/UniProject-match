@@ -8,6 +8,7 @@
     + Add Admin
 </a>
 
+
 <table class="w-full mt-6 bg-[#1e293b] rounded">
     <thead>
         <tr class="text-left border-b border-gray-600">

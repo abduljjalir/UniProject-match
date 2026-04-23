@@ -8,6 +8,8 @@ use App\Models\Professor;
 use App\Models\Speciality;
 use App\Models\Project;
 use App\Models\Allocation;
+use App\Models\Selection;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -16,55 +18,91 @@ class DashboardController extends Controller
         $totalStudents = Student::count();
         $allocatedStudents = Allocation::count();
 
-    $allocationPercent = $totalStudents > 0 
-        ? round(($allocatedStudents / $totalStudents) * 100)
-        : 0;
+        $allocationPercent = $totalStudents > 0
+            ? round(($allocatedStudents / $totalStudents) * 100)
+            : 0;
 
-    $unallocated = Student::doesntHave('allocation')->count();
+        // FIX relationship name if needed
+        $unallocated = Student::doesntHave('allocation')->count();
 
-    $alerts = [];
+        $alerts = [];
 
-    if ($unallocated > 0) {
-        $alerts[] = "$unallocated students not allocated";
-    }
+        if ($unallocated > 0) {
+            $alerts[] = "$unallocated students not allocated";
+        }
 
-    $recentSelections = \App\Models\Selection::with('student', 'project')
-        ->latest()
-        ->take(5)
-        ->get();
-     $topProject = Project::withCount('selections')
-    ->orderByDesc('selections_count')
-    ->first();
+        
+        $recentSelections = Selection::with('student', 'project')
+            ->latest()
+            ->take(5)
+            ->get();
 
-    $topStudent = Student::orderByDesc('cgpa')->first();
+        
+        $recentAllocations = Allocation::with('student', 'project')
+            ->latest()
+            ->take(5)
+            ->get();
 
-    return view('admin.pages.dashboard', [
-        'studentCount' => $totalStudents,
-        'professorCount' => Professor::count(),
-        'specialityCount' => Speciality::count(),
+       
+        $topProject = Project::withCount('selections')
+            ->orderByDesc('selections_count')
+            ->first();
 
-        'allocationPercent' => $allocationPercent,
+        $topStudent = Student::orderByDesc('cgpa')->first();
 
-        'alerts' => $alerts,
-        'recentSelections' => $recentSelections,
+       
+        $specialities = Speciality::withCount('students')->get();
+        $projects = Project::withCount('selections')->get();
 
-        'students' => Student::with('selections.project', 'allocation.project')
-        ->latest()
-        ->take(10)
-        ->get(),
-        'professors' => Professor::with('projects')
-        ->latest()
-        ->take(10)
-        ->get(),
+        
+        $resultDate = setting('results_date');
+        $reviewDate = setting('review_date');
 
-        'specialityNames' => Speciality::pluck('name'),
-        'studentCounts' => Speciality::withCount('students')->pluck('students_count'),
+        $resultDate = $resultDate ? Carbon::parse($resultDate) : now()->addDays(3);
+        $reviewDate = $reviewDate ? Carbon::parse($reviewDate) : now()->addDays(7);
 
-        'projectNames' => Project::pluck('title'),
-        'projectCounts' => Project::withCount('selections')->pluck('selections_count'),
+        $daysToResults = now()->diffInDays($resultDate, false);
+        $daysToReview = now()->diffInDays($reviewDate, false);
 
-        'topProject' => $topProject,
-        'topStudent' => $topStudent,
-    ]);
+        return view('admin.pages.dashboard', [
+
+            // COUNTS
+            'studentCount' => $totalStudents,
+            'professorCount' => Professor::count(),
+            'specialityCount' => Speciality::count(),
+
+            // ALLOCATION
+            'allocationPercent' => $allocationPercent,
+            'alerts' => $alerts,
+
+            // DATA LISTS
+            'recentSelections' => $recentSelections,
+            'recentAllocations' => $recentAllocations,
+
+            'students' => Student::with('selections.project', 'allocation.project')
+                ->latest()
+                ->take(10)
+                ->get(),
+
+            'professors' => Professor::with('projects')
+                ->latest()
+                ->take(10)
+                ->get(),
+
+            // CHARTS
+            'specialityNames' => $specialities->pluck('name'),
+            'studentCounts' => $specialities->pluck('students_count'),
+
+            'projectNames' => $projects->pluck('title'),
+            'projectCounts' => $projects->pluck('selections_count'),
+
+            // TOP STATS
+            'topProject' => $topProject,
+            'topStudent' => $topStudent,
+
+            // REMINDERS
+            'daysToResults' => $resultDate->diffInDays(now()),
+            'daysToReview' => $reviewDate->diffInDays(now()),
+        ]);
     }
 }

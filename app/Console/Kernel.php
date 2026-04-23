@@ -13,11 +13,11 @@ class Kernel extends ConsoleKernel
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
-    protected function schedule(Schedule $schedule)
-    {
-        // $schedule->command('inspire')->hourly();
-    }
-
+     protected function schedule(Schedule $schedule)
+{
+    $schedule->command('allocations:run')
+        ->dailyAt('23:59'); // or everyMinute() for testing
+}
     /**
      * Register the commands for the application.
      *

@@ -9,7 +9,7 @@ class Allocation extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'student_id', 'project_id'
+        'student_id', 'project_id', 'professor_id'
     ];
 
     public function student()

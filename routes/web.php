@@ -1,36 +1,78 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AllocationController;
+
+use App\Http\Controllers\Admin\AllocationController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ProfessorController;
+use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\SkillController;
+use App\Http\Controllers\Admin\SpecialityController;
+use App\Http\Controllers\Admin\SelectionController;
 use App\Http\Controllers\Admin\StudentController as AdminStudentController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| PUBLIC ROUTES
 |--------------------------------------------------------------------------
 */
 
-// Public route
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Allocation
+/*
+|--------------------------------------------------------------------------
+| ALLOCATION
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/allocate', [AllocationController::class, 'runAllocation']);
 
-// Student project view (public / app use)
+/*
+|--------------------------------------------------------------------------
+| PUBLIC STUDENT VIEW
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/student/{id}/project', [StudentController::class, 'myProject']);
 
-// Admin dashboard
-Route::get('/admin/dashboard', [DashboardController::class, 'index']);
+/*
+|--------------------------------------------------------------------------
+| ADMIN AUTH
+|--------------------------------------------------------------------------
+*/
 
-// Admin CRUD
-Route::prefix('admin')->group(function () {
+Route::get('/admin/login', [AuthController::class, 'showLogin'])->name('admin.login');
+Route::post('/admin/login', [AuthController::class, 'login']);
+Route::get('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN AREA (PROTECTED)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:admin')->prefix('admin')->group(function () {
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('admin.dashboard');
+
+    Route::resource('admins', AdminController::class);
+
     Route::resource('students', AdminStudentController::class);
-});
-Route::prefix('admin')->group(function () {
-    Route::resource('admins', \App\Http\Controllers\Admin\AdminController::class);
+    Route::get('/settings', [SettingController::class, 'index'])->name('admin.settings');
+    Route::post('/settings', [SettingController::class, 'store']);
+    Route::resource('professors', ProfessorController::class);
+    Route::resource('projects', ProjectController::class);
+    Route::resource('specialities', SpecialityController::class);
+    Route::resource('allocations', AllocationController::class);
+    Route::resource('skills', SkillController::class);
+    Route::resource('selections', SelectionController::class);
+
+
 });
