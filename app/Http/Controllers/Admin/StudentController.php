@@ -7,6 +7,8 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use App\Models\Speciality;
 use App\Models\Skill;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
@@ -40,6 +42,7 @@ class StudentController extends Controller
     if ($request->hasFile('image')) {
         $imagePath = $request->file('image')->store('students', 'public');
     }
+    $plainPassword = Str::random(8); // Generate a random password
 
     $student = Student::create([
         'name' => $request->name,
@@ -47,6 +50,7 @@ class StudentController extends Controller
         'cgpa' => $request->cgpa,
         'speciality_id' => $request->speciality_id,
         'image' => $imagePath,
+        'password' => Hash::make($plainPassword),
     ]);
 
     // ✅ SAVE SKILLS
@@ -80,6 +84,16 @@ class StudentController extends Controller
 
     return view('admin.students.edit', compact('student', 'specialities', 'skills'));
 }
+public function resetPassword(Student $student)
+{
+    $newPassword = \Str::random(8);
+
+    $student->update([
+        'password' => \Hash::make($newPassword)
+    ]);
+
+    return back()->with('success', 'New Password: ' . $newPassword);
+}
 public function update(Request $request, Student $student)
 {
     $request->validate([
@@ -108,6 +122,7 @@ public function update(Request $request, Student $student)
         'cgpa' => $request->cgpa,
         'speciality_id' => $request->speciality_id,
         'image' => $imagePath,
+        
     ]);
 
     // ✅ SYNC SKILLS

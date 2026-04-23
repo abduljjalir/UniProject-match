@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Professor;
 use App\Models\Speciality;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class ProfessorController extends Controller
 {
@@ -28,14 +30,18 @@ class ProfessorController extends Controller
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('professors', 'public');
         }
+        $plainPassword = Str::random(8); // Generate a random password
 
         Professor::create([
             'name' => $request->name,
-            
+            'email' => $request->email,
             'image' => $imagePath,
+            'speciality_id' => $request->speciality_id,
+            'password' => Hash::make($plainPassword), // Generate a random password
         ]);
 
-        return redirect()->route('professors.index');
+        return redirect()->route('professors.index')
+            ->with('success', 'Professor created successfully. New Password: ' . $plainPassword);
     }
 
     public function show(Professor $professor)

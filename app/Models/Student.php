@@ -10,8 +10,12 @@ class Student extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'student_id', 'image', 'cgpa', 'speciality_id'
+        'name', 'student_id', 'image', 'cgpa', 'speciality_id', 'password'
     ];
+    protected $hidden = [
+        'password',
+    ];
+
 
     public function speciality()
     {

@@ -73,6 +73,15 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
     Route::resource('allocations', AllocationController::class);
     Route::resource('skills', SkillController::class);
     Route::resource('selections', SelectionController::class);
+    Route::post('/students/{student}/reset-password', [AdminStudentController::class, 'resetPassword'])
+    ->name('students.resetPassword');
+    Route::post('/settings/student/{id}/reset-password', 
+    [SettingController::class, 'resetStudentPassword'])
+    ->name('settings.student.reset');
+
+Route::post('/settings/professor/{id}/reset-password', 
+    [SettingController::class, 'resetProfessorPassword'])
+    ->name('settings.professor.reset');
 
 
 });
