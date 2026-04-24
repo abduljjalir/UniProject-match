@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        ApiService api = RetrofitClient.getApiService();
+        ApiService api = RetrofitClient.getApiService(this);
 
 
         // Créer la bonne requête selon le mode
