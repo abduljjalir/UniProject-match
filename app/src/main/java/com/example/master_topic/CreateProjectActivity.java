@@ -12,6 +12,17 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.master_topic.api.ApiService;
+import com.example.master_topic.api.RetrofitClient;
+import com.example.master_topic.models.CreateProjectRequest;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class CreateProjectActivity extends AppCompatActivity {
 
     LinearLayout skillsContainer;
@@ -130,11 +141,12 @@ public class CreateProjectActivity extends AppCompatActivity {
 
     // ===== CRÉER LE PROJET =====
     private void handleCreateProject() {
-        String title    = etTitle.getText().toString().trim();
-        String desc     = etDescription.getText().toString().trim();
-        String maxStu   = etMaxStudents.getText().toString().trim();
-        String reqPts   = etRequiredPoints.getText().toString().trim();
+        String title  = etTitle.getText().toString().trim();
+        String desc   = etDescription.getText().toString().trim();
+        String maxStu = etMaxStudents.getText().toString().trim();
+        String reqPts = etRequiredPoints.getText().toString().trim();
 
+        // Validation
         if (title.isEmpty()) {
             etTitle.setError("Champ requis");
             return;
@@ -156,9 +168,52 @@ public class CreateProjectActivity extends AppCompatActivity {
             return;
         }
 
-        // TODO: Sauvegarder en base de données (Room ou API)
-        Toast.makeText(this, "Projet \"" + title + "\" créé !", Toast.LENGTH_SHORT).show();
-        finish(); // Retour au dashboard
+        // Récupérer les skills ajoutés
+        List<String> skills = new ArrayList<>();
+        for (int i = 0; i < skillsContainer.getChildCount(); i++) {
+            View child = skillsContainer.getChildAt(i);
+            if (child instanceof LinearLayout) {
+                LinearLayout row = (LinearLayout) child;
+                if (row.getChildCount() > 0) {
+                    TextView tvName = (TextView) row.getChildAt(0);
+                    skills.add(tvName.getText().toString());
+                }
+            }
+        }
+
+        // Créer la requête
+        CreateProjectRequest request = new CreateProjectRequest(
+                title,
+                desc,
+                Integer.parseInt(maxStu),
+                Integer.parseInt(reqPts),
+                skills
+        );
+
+        // Appel API
+        ApiService api = RetrofitClient.getApiService(this);
+        api.createProject(request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(CreateProjectActivity.this,
+                            "Projet créé avec succès !",
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(CreateProjectActivity.this,
+                            "Erreur : " + response.code(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(CreateProjectActivity.this,
+                        "Erreur réseau",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // Convertir dp en pixels

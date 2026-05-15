@@ -233,7 +233,7 @@
             android:id="@+id/tvLogout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Se déconnecter"
+            android:text="Logout"
             android:textColor="#A0ADB8"
             android:textSize="13sp"
             android:clickable="true"

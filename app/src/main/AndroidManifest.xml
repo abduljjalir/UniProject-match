@@ -22,6 +22,7 @@
         </activity>
         <activity android:name=".DashboardActivity" />
         <activity android:name=".CreateProjectActivity" />
+        <activity android:name=".ProjectDetailActivity" />
     </application>
 
 </manifest>

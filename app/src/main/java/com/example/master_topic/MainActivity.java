@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 .apply();
     }
 
+
     void naviguerSelonRole(String role) {
         switch (role) {
             case "etudiant":

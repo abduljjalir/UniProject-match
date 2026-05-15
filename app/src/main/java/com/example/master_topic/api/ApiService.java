@@ -1,5 +1,6 @@
 package com.example.master_topic.api;
 
+import com.example.master_topic.models.CreateProjectRequest;
 import com.example.master_topic.models.LoginRequest;
 import com.example.master_topic.models.LoginResponse;
 import com.example.master_topic.models.ProfessorLoginRequest;
@@ -26,6 +27,7 @@ public interface ApiService {
     Call<LoginResponse> professorLogin(@Body ProfessorLoginRequest request);
     @POST("auth/logout")
     Call<Void> logout();
+
 
     // ── Projets ───────────────────────────────────
     @GET("projects")
@@ -54,4 +56,8 @@ public interface ApiService {
 
     @GET("allocation/status")
     Call<Object> getAllocationStatus();
+
+    // Créer un projet (professeur)
+    @POST("add")
+    Call<Void> createProject(@Body CreateProjectRequest request);
 }
