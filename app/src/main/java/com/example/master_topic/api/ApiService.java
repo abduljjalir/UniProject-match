@@ -7,6 +7,7 @@ import com.example.master_topic.models.ProfessorLoginRequest;
 import com.example.master_topic.models.Project;
 import com.example.master_topic.models.Choice;
 import com.example.master_topic.models.Appeal;
+import com.example.master_topic.models.SelectionRequest;
 import com.example.master_topic.models.StudentLoginRequest;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public interface ApiService {
 
     // ── Sélections (étudiant) ─────────────────────
     @POST("selections")
-    Call<Void> submitSelections(@Body List<Choice> choices);
+    Call<Void> selectProject(@Body SelectionRequest request);
 
     @GET("selections/me")
     Call<List<Project>> getMySelections();

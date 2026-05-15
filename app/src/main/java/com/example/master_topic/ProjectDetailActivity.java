@@ -108,14 +108,42 @@ public class ProjectDetailActivity extends AppCompatActivity {
 
     void toggleSelection(int projectId) {
         isSelected = !isSelected;
+
         if (isSelected) {
-            btnSelectProject.setText("✅  Project Selected");
-            btnSelectProject.setBackgroundResource(R.drawable.bg_btn_selected);
-            Toast.makeText(this,
-                    "Projet ajouté à ta sélection !",
-                    Toast.LENGTH_SHORT).show();
-            setResult(RESULT_OK, getIntent());
+            // Envoyer la sélection à l'API
+            ApiService api = RetrofitClient.getApiService(this);
+            SelectionRequest request = new SelectionRequest(projectId, 1);
+
+            api.selectProject(request).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        btnSelectProject.setText("✅  Project Selected");
+                        btnSelectProject.setBackgroundResource(R.drawable.bg_btn_selected);
+                        Toast.makeText(ProjectDetailActivity.this,
+                                "Projet ajouté à ta sélection !",
+                                Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_OK, getIntent());
+                    } else {
+                        // Remettre à l'état initial si erreur
+                        isSelected = false;
+                        Toast.makeText(ProjectDetailActivity.this,
+                                "Erreur : " + response.code(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    isSelected = false;
+                    Toast.makeText(ProjectDetailActivity.this,
+                            "Erreur réseau",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+
         } else {
+            // Désélectionner
             btnSelectProject.setText("⭐  Select this project");
             btnSelectProject.setBackgroundResource(R.drawable.bg_btn_login);
             Toast.makeText(this,
@@ -124,4 +152,3 @@ public class ProjectDetailActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED, getIntent());
         }
     }
-}
