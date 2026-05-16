@@ -18,30 +18,22 @@
         android:paddingBottom="40dp">
 
         <!-- IcÃ´ne chapeau (emoji ou image) -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ðŸŽ“"
-            android:textSize="60sp" />
-
-        <!-- Nom de l'app -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="mastertopic"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="#1A2B3C" />
 
         <!-- Sous-titre -->
+        <ImageView
+            android:layout_width="500dp"
+            android:layout_height="150dp"
+            android:layout_marginBottom="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="Academic Project Allocation System"
-            android:textSize="13sp"
-            android:textColor="#8A96A3" />
+            android:textColor="#8A96A3"
+            android:textSize="13sp" />
 
         <!-- Toggle Student / Professor -->
         <LinearLayout
@@ -101,11 +93,10 @@
                     android:paddingLeft="12dp"
                     android:paddingRight="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ðŸ‘¤"
-                        android:textSize="18sp"
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/ic_person"
                         android:paddingRight="8dp" />
 
                     <EditText
@@ -131,11 +122,10 @@
                     android:paddingLeft="12dp"
                     android:paddingRight="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ðŸ”’"
-                        android:textSize="18sp"
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/ic_look"
                         android:paddingRight="8dp" />
 
                     <EditText
